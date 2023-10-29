@@ -12,7 +12,9 @@ function BrowsePage() {
       <Navbar />
       <Billboard />
       <div className="pb-r">
-        <MovieList />
+        {loading && <p>Loading...</p>}
+        {error && <p>{error}</p>}
+        {data && <MovieList movies={data} />}
       </div>
     </div>
   );
