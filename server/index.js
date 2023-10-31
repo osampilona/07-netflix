@@ -11,7 +11,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/movies/list", (req, res) => {
-  return res.send(movies);
+  const offset = parseInt(req.query.offset) || 0; // default to 0 if offset is not provided
+  const from = offset;
+  const to = offset + 12;
+  const moviesSubset = movies.slice(from, to); // using slice to get the subset
+  setTimeout(() => {
+    return res.json({ movies: moviesSubset, count: movies.length });
+  }, 3000);
 });
 
 app.get("/movie/:id", (req, res) => {

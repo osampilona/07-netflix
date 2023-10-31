@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import axios from "axios";
 import { Movie } from "../types";
 
@@ -25,13 +25,13 @@ type Action =
   | { type: ActionType.SUCCESS; payload: Movie[] }
   | { type: ActionType.FAILED; payload: string };
 
-const reducer = (_: State, action: Action): State => {
+const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case ActionType.LOADING:
       return {
+        ...state,
         loading: true,
         error: null,
-        data: null,
       };
     case ActionType.FAILED:
       return {
@@ -50,21 +50,29 @@ const reducer = (_: State, action: Action): State => {
   }
 };
 
-const useMoviesList = () => {
+const useMoviesList = (offset: number) => {
   const [{ data, loading, error }, dispatch] = useReducer(
     reducer,
     initialState
   );
+  const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
     fetchMoviesList();
-  }, []);
+  }, [offset]);
 
   const fetchMoviesList = async () => {
+    if (data && count && data.length >= count) return;
     dispatch({ type: ActionType.LOADING });
     try {
-      const response = await axios.get("http://localhost:8080/movies/list");
-      dispatch({ type: ActionType.SUCCESS, payload: response.data });
+      const response = await axios.get(
+        `http://localhost:8080/movies/list?offset=${offset}`
+      );
+      const moviesData = data
+        ? [...data, ...response.data.movies]
+        : response.data.movies;
+      setCount(response.data.count);
+      dispatch({ type: ActionType.SUCCESS, payload: moviesData });
     } catch (error) {
       dispatch({ type: ActionType.FAILED, payload: "Something went wrong" });
     }
