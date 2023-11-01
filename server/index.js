@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const movies = require("./movies.json");
+const { prisma } = require("./db");
 
 const app = express();
 
@@ -10,19 +10,20 @@ app.get("/", (req, res) => {
   return res.send("Hello Ljubi");
 });
 
-app.get("/movies/list", (req, res) => {
+app.get("/movies/list", async (req, res) => {
   const offset = parseInt(req.query.offset) || 0; // default to 0 if offset is not provided
-  const from = offset;
-  const to = offset + 12;
-  const moviesSubset = movies.slice(from, to); // using slice to get the subset
-  setTimeout(() => {
-    return res.json({ movies: moviesSubset, count: movies.length });
-  }, 3000);
+  const count = await prisma.movie.count();
+  const movies = await prisma.movie.findMany({ take: 12, skip: offset });
+  return res.json({ movies, count });
 });
 
-app.get("/movie/:id", (req, res) => {
+app.get("/movie/:id", async (req, res) => {
   const id = req.params.id;
-  const movie = movies.find((m) => m.id === id);
+  const movie = await prisma.movie.findUnique({
+    where: {
+      id: parseInt(id),
+    },
+  });
   return res.send(movie);
 });
 
