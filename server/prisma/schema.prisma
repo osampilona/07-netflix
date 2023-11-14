@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,11 +8,18 @@ datasource db {
 }
 
 model Movie {
-  id           Int    @id @default(autoincrement())
+  id           Int    @id @default(autoincrement()) @map("movie")
   title        String
   description  String
   thumbnailUrl String
   videoUrl     String
   duration     String
   genre        String
+}
+
+model User {
+  id       Int    @id @default(autoincrement()) @map("user")
+  username String
+  email    String @unique
+  password String
 }
