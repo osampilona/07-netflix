@@ -55,7 +55,7 @@ router.post(
       },
     });
 
-    const token = await JWT.sign(newUser, process.env.JSON_WEB_TOKEN_SECRET, {
+    const token = JWT.sign(newUser, process.env.JSON_WEB_TOKEN_SECRET, {
       expiresIn: 360000000,
     });
 
